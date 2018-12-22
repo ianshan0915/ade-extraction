@@ -5,7 +5,7 @@ class ScrpayDrugs(scrapy.Spider):
   name = 'scrapy-drugs'
 
   # prepare urls
-  substances = json.load(open('/Users/ianshen/Documents/github/ade-extraction/src/substances.json','r'))
+  substances = json.load(open('/Users/ianshen/Documents/github/ade-extraction/data/substances.json','r'))
   urls = [ item['url_link'] for item in substances]
 
   start_urls = urls[:10]
