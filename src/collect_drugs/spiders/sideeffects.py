@@ -16,5 +16,6 @@ class ScrpaySideEffects(scrapy.Spider):
       yield {
         'url_drug': response.request.url,
         'html_content': side_effects_text,
-        'content': response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div[1]//text()").extract()
+        'content': response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div[1]//text()").extract(),
+        'atc_text': response.xpath("//div[contains(.//text(), '5.1 Pharmacodynamic')]/following-sibling::div[1]//text()").extract()[1]
       }    
