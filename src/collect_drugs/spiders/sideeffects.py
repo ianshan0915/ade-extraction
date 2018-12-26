@@ -1,4 +1,6 @@
 import json
+import re
+
 import scrapy
 
 class ScrpaySideEffects(scrapy.Spider):
@@ -12,10 +14,19 @@ class ScrpaySideEffects(scrapy.Spider):
 
   def parse(self, response):
     side_effects_text = response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div").extract_first()
+    atc_arr = response.xpath("//div[contains(.//text(), '5.1 Pharmacodynamic')]/following-sibling::div[1]//text()").extract()
+
+    # 
+    atc_text = ''
+    for item in atc_arr:
+      if re.search(r'([A-Z]{1}[0-9]{2}[A-Z]+[0-9]*)', item.replace(" ", "")):
+        atc_text = item
+        break
+
     if side_effects_text:
       yield {
         'url_drug': response.request.url,
         'html_content': side_effects_text,
         'content': response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div[1]//text()").extract(),
-        'atc_text': response.xpath("//div[contains(.//text(), '5.1 Pharmacodynamic')]/following-sibling::div[1]//text()").extract()[1]
+        'atc_text': atc_text
       }    
