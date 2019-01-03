@@ -15,6 +15,7 @@ class ScrpaySideEffects(scrapy.Spider):
   def parse(self, response):
     side_effects_text = response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div").extract_first()
     atc_arr = response.xpath("//div[contains(.//text(), '5.1 Pharmacodynamic')]/following-sibling::div[1]//text()").extract()
+    revision_date = response.xpath("//h3[contains(.//text(), 'Last updated ')]/span//text()").extract_first()
 
     # 
     atc_text = ''
@@ -28,5 +29,6 @@ class ScrpaySideEffects(scrapy.Spider):
         'url_drug': response.request.url,
         'html_content': side_effects_text,
         'content': response.xpath("//div[contains(.//text(), 'effects')]/following-sibling::div[1]//text()").extract(),
-        'atc_text': atc_text
+        'atc_text': atc_text,
+        'updated_date': revision_date
       }    
