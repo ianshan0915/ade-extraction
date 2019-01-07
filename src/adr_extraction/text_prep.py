@@ -50,8 +50,6 @@ def clean_html_content():
     drug['html_content'] = re.sub('</u>', '', drug['html_content'])
     drug['html_content'] = re.sub(r'<sup>.+?</sup>', '', drug['html_content'])
     drug['html_content'] = re.sub(r'<sub>.+?</sub>', '', drug['html_content'])
-    if re.search(r'<sub>[a-z0-9]+</sub>', drug['html_content']):
-      print(drug['url_drug'])
 
   return drugs
 
@@ -61,14 +59,36 @@ def check_tbl(content_tbl):
   if not, the table will not be kept for the following step
   """
 
-  count_common = [i for i, x in enumerate(content_tbl) if 'common' in x ]
-  count_rare = [i for i, x in enumerate(content_tbl) if 'rare' in x ]
-  count_unknown = [i for i, x in enumerate(content_tbl) if "known" in x]
+  count_common = len([i for i, x in enumerate(content_tbl) if 'common' in x ])
+  count_rare = len([i for i, x in enumerate(content_tbl) if 'rare' in x ])
+  count_unknown = len([i for i, x in enumerate(content_tbl) if "known" in x])
+  count_disorders = len([i for i, x in enumerate(content_tbl) if "disorders" in x])
+  count_digits = len([i for i, x in enumerate(content_tbl) if re.findall(r'^[0-9]+$', x.strip())])
 
-  if len(count_common)==0 and len(count_rare)<=2:
+  if all(i <=1 for i in [count_common, count_rare, count_unknown]) or count_disorders==0 or count_digits>3:
     return False
   else:
     return True
+
+def get_tbl_type(num_tbl, num_cols, len_tr, content_tbl):
+  """
+  obtain table type based on table features
+  """
+
+  count_very_common = len([i for i, x in enumerate(content_tbl) if re.match(r'^very common',x) ])
+  count_common = len([i for i, x in enumerate(content_tbl) if re.match(r'^common',x) ])
+  count_uncommon = len([i for i, x in enumerate(content_tbl) if re.match(r'^uncommon',x) ])
+  count_rare = len([i for i, x in enumerate(content_tbl) if re.match(r'^rare',x) ])
+  count_very_rare = len([i for i, x in enumerate(content_tbl) if re.match(r'^very rare',x) ])
+  count_unknown = len([i for i, x in enumerate(content_tbl) if "known" in x])
+  count_feats = [count_very_common,count_common,count_uncommon,count_rare,count_very_rare,count_unknown]
+
+  if ((all(i <2 for i in count_feats) and num_tbl<5) or num_cols>4) and len_tr>2:
+    tbl_type = 'table type: horizontal'
+  else:
+    tbl_type = 'table type: vertical'
+
+  return tbl_type
 
 def extract_tbls(num_tbl, html_content):
   """
@@ -81,13 +101,15 @@ def extract_tbls(num_tbl, html_content):
     xpath_string = "//div//div[" + str(i) + "]//text()"
     xpath_tr = "//div//div[" + str(i) + "]//tr"
     xpath_tr_1st = "//div//div[" + str(i) + "]//tr[1]//td"
+    xpath_tr_2nd = "//div//div[" + str(i) + "]//tr[2]//td"
     xpath_td = "//div//div[" + str(i) + "]//td"
     content_tbl = html_content.xpath(xpath_string)
+    content_tbl = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content_tbl ]
 
     if check_tbl(content_tbl):
-      contents +=content_tbl
       len_tr = len(html_content.xpath(xpath_tr))
       len_tr_1st = len(html_content.xpath(xpath_tr_1st))
+      len_tr_2nd = len(html_content.xpath(xpath_tr_2nd))
       len_td = len(html_content.xpath(xpath_td))
 
       if len_tr<=1:
@@ -96,8 +118,15 @@ def extract_tbls(num_tbl, html_content):
         num_cols = round((len_td - len_tr_1st)/(len_tr-1))
 
       # table structure: number of columns in the first row, number of rows, number of columns
-      tbl_structure = 'table structure,' + str(len_tr_1st) + ',' + str(len_tr) + ',' + str(num_cols)
-      contents.append(tbl_structure)
+      tbl_structure = 'table structure,' + str(len_tr_1st) + ',' + str(len_tr_2nd) + ','+ str(len_tr) + ',' + str(num_cols)
+      if get_tbl_type(num_tbl, num_cols, len_tr, content_tbl)=='table type: vertical':
+        content_tbl = [ re.sub(r'[\n\t]+', '', item, flags=re.M)  for item in content_tbl ]
+      else:
+        content_tbl = [td.text_content() for td in html_content.xpath(xpath_td)]
+      content_tbl = [tbl_structure, get_tbl_type(num_tbl, num_cols, len_tr, content_tbl)] + content_tbl
+
+      contents +=content_tbl
+
 
   return contents
 
@@ -114,13 +143,16 @@ def extract_clean_content(drugs):
     if '<table ' in drug['html_content']:
       count_tbls = sum(1 for _ in re.finditer('<table ', drug['html_content']))
       content = extract_tbls(count_tbls, html_content)
+      print(drug['url_drug'])
 
-      # if all the tables donot have 
+      # if all the tables donot have meaningful info
       if len(content)==0:
-        print('exception drug url: ', drug['url_drug'])
+        # print('exception drug url: ', drug['url_drug'])
         content = html_content.xpath("//div//text()")
+        content = [ re.sub(r'[\n\t]+', '', item, flags=re.M)  for item in content ]
     else:
       content = html_content.xpath("//div//text()")
+      content = [ re.sub(r'[\n\t]+', '', item, flags=re.M)  for item in content ]
 
     # convert to lowercase, and strip spaces
     adr_content = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content ]
@@ -147,14 +179,15 @@ def extract_clean_content(drugs):
     elif len(reporting_suspected_index) >0:
       drug['content_cleaned'] = drug['content_cleaned'][start_ind:reporting_suspected_index[0]]
 
-  keys_included = ['url_drug', 'content_cleaned']
+  keys_included = ['url_drug', 'content_cleaned', 'atc_code', 'updated_date']
   drugs_sub = [ {k:v for k, v in item.items() if k in keys_included} for item in drugs ]
+  
   with open("./../data/side-effects-content-new.json", "w") as write_file:
     json.dump(drugs_sub, write_file, indent=2)
 
-  return drugs
+  return drugs_sub
 
-def extract_features(drugs):
+def extract_features(feats_drugs):
   """
   Conducting some exploratory analysis to know the textual content of side effects
   """
@@ -162,35 +195,31 @@ def extract_features(drugs):
   # # load the drugs
   # uniDrugs = json.load(open("./../data/side-atccodes.json", 'r'))
 
-  # check how many drugs have the side effects structuredly presented in table
-  tbled_drugs = [ item for item in drugs if '<table ' not in item['html_content']]
-  print("The number of drugs with sides effects not in table(s): ", len(tbled_drugs))
-
-  for drug in drugs:
-    drug['count_table'] = sum(1 for _ in re.finditer('<table ', drug['html_content']))
-    drug['very_common'] = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^very common',x) ]
-    drug['common'] = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^common',x) ]
-    drug['uncommon'] = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^uncommon',x) ]
-    drug['rare'] = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^rare',x) ]
-    drug['very_rare'] = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^very rare',x) ]
-    drug['unknown'] = [i for i, x in enumerate(drug['content_cleaned']) if "known" in x]
-    drug['count_veryCommon'] = len(drug['very_common'])
-    drug['count_common'] = len(drug['common'])
-    drug['count_unommon'] = len(drug['uncommon'])
-    drug['count_rare'] = len(drug['rare'])
-    drug['count_veryRare'] = len(drug['very_rare'])
-    drug['count_unknown'] = len(drug['unknown'])
+  for feats_drug in feats_drugs:
+    feats_drug['count_table'] = len([i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^table structure',x) ])
+    feats_drug['very_common'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^very common',x) ]
+    feats_drug['common'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^common',x) ]
+    feats_drug['uncommon'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^uncommon',x) ]
+    feats_drug['rare'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^rare',x) ]
+    feats_drug['very_rare'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^very rare',x) ]
+    feats_drug['unknown'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if "known" in x]
+    feats_drug['count_veryCommon'] = len(feats_drug['very_common'])
+    feats_drug['count_common'] = len(feats_drug['common'])
+    feats_drug['count_unommon'] = len(feats_drug['uncommon'])
+    feats_drug['count_rare'] = len(feats_drug['rare'])
+    feats_drug['count_veryRare'] = len(feats_drug['very_rare'])
+    feats_drug['count_unknown'] = len(feats_drug['unknown'])
 
   # keys_included = ['url_drug', 'count_table', 'very_common', 'common', 'uncommon', 'rare', 'very_rare', 'unknown']
   keys_included = ['url_drug', 'count_table', 'count_veryCommon', 'count_common', 'count_unommon', 'count_rare', \
                    'count_veryRare', 'count_unknown']
   # keys_included = ['url_drug', 'content','content_cleaned','html_content']
-  drugs_sub = [ {k:v for k, v in item.items() if k in keys_included} for item in drugs ]
+  feats_drugs_sub = [ {k:v for k, v in item.items() if k in keys_included} for item in feats_drugs ]
 
   with open("./../data/side-effects-features.json", "w") as write_file:
-    json.dump(drugs_sub, write_file, indent=2)
+    json.dump(feats_drugs_sub, write_file, indent=2)
 
-  return drugs
+  return feats_drugs_sub
 
 def drugs_group():
   """
@@ -199,17 +228,31 @@ def drugs_group():
   # load the extracted features
   feats = json.load(open("./../data/side-effects-features.json", 'r'))
 
-  drugs_multi_tbls = [ item for item in feats if item['count_table']>=2]
-  print("drugs with more than 2 tables: ", len(drugs_multi_tbls))
+  for drug in feats:
+    if drug['count_table']==0:
+      drug_vals = list(drug.values())[2:len(drug.values())]
+      feats_vals = [ val for val in drug_vals[1:len(drug_vals)-1]]
+      if any(i>1 for i in feats_vals) or sum(drug_vals)>=5:
+        drug['struct_type'] = 'structured'
+      else:
+        print(drug)
+        drug['struct_type'] = 'free-text'
+    else:
+      drug['struct_type'] = 'tablular'
 
-  drugs_no_tbls = [ item for item in feats if item['count_table']>=2 ]
+  feats_sub = [ {k:v for k, v in item.items() if k in ['url_drug', 'struct_type']} for item in feats ]
 
-  return None
+  return feats_sub
 
-def explore_structural_char(drugs):
+def explore_structural_html_content(drugs):
   """
+  explore the structural characteristics of html content
   """
-  
+
+  # check how many drugs have the side effects structuredly presented in table
+  tbled_drugs = [ item for item in drugs if '<table ' not in item['html_content']]
+  print("The number of drugs with sides effects not in table(s): ", len(tbled_drugs))
+
   for drug in drugs:
     print(drug['url_drug'])
     count_tbls = sum(1 for _ in re.finditer('<table ', drug['html_content']))
@@ -224,6 +267,41 @@ def explore_structural_char(drugs):
 
   return None
 
+def explore_structural_extracted_content():
+  """
+  explore the structural characteristics of the extracted content
+  """
+
+  # load the features
+  feats = json.load(open("./../data/side-effects-features.json", 'r'))
+
+  for drug in feats:
+    if drug['count_table']==0:
+      drug_vals = list(drug.values())[2:len(drug.values())]
+      feats_vals = [ val for val in drug_vals[1:len(drug_vals)-1]]
+      if any(i>1 for i in feats_vals) or sum(drug_vals)>=5:
+        drug['struct_type'] = 'structured'
+      else:
+        print(drug)   
+        drug['struct_type'] = 'free-text'
+    else:
+      drug['struct_type'] = 'tablular'
+  
+  feats_sub = [ {k:v for k, v in item.items() if k in ['url_drug', 'struct_type']} for item in feats ]
+
+  return feats_sub
+
+def merge_json_list(drugs, groups_drug):
+  """
+  """
+
+  merged = [{**drug, **group} for drug, group in zip(drugs, groups_drug)]
+
+  with open("./../data/side-effects-content-merged.json", "w") as write_file:
+    json.dump(merged, write_file, indent=2)
+
+  return None
+
 def main():
   
   # # atc codes extraction
@@ -232,10 +310,14 @@ def main():
   # clean content extracted from the 4.8 section
   drugs = clean_html_content()
   drugs = extract_clean_content(drugs)
-  # explore_structural_char(drugs)
+
+  # explore_structural_html_content(drugs)
+  # explore_structural_extracted_content()
 
   # feature engineering, obtain the structure features of the content in section 4.8
   # drugs_extra_feats = extract_features(drugs)
+  groups = drugs_group()
+  merge_json_list(drugs, groups)
 
 if __name__ == "__main__":
   main()
