@@ -53,7 +53,7 @@ def clean_html_content():
 
   return drugs
 
-def check_tbl(content_tbl):
+def check_tbl(num_tbl, content_tbl):
   """
   check if the content of a table have common, rare, or unknown
   if not, the table will not be kept for the following step
@@ -64,8 +64,9 @@ def check_tbl(content_tbl):
   count_unknown = len([i for i, x in enumerate(content_tbl) if "known" in x])
   count_disorders = len([i for i, x in enumerate(content_tbl) if "disorders" in x])
   count_digits = len([i for i, x in enumerate(content_tbl) if re.findall(r'^[0-9]+$', x.strip())])
-
-  if all(i <=1 for i in [count_common, count_rare, count_unknown]) or count_disorders==0 or count_digits>3:
+  if num_tbl >8:
+    return True
+  elif all(i <=1 for i in [count_common, count_rare, count_unknown]) or count_disorders==0 or count_digits>3:
     return False
   else:
     return True
@@ -83,7 +84,9 @@ def get_tbl_type(num_tbl, num_cols, len_tr, content_tbl):
   count_unknown = len([i for i, x in enumerate(content_tbl) if "known" in x])
   count_feats = [count_very_common,count_common,count_uncommon,count_rare,count_very_rare,count_unknown]
 
-  if ((all(i <2 for i in count_feats) and num_tbl<5) or num_cols>4) and len_tr>2:
+  if num_cols>3 and sum(count_feats) <=num_cols:
+    tbl_type = 'table type: horizontal'
+  elif ((all(i <2 for i in count_feats) and num_tbl<5) or num_cols>4) and len_tr>2:
     tbl_type = 'table type: horizontal'
   else:
     tbl_type = 'table type: vertical'
@@ -102,15 +105,21 @@ def extract_tbls(num_tbl, html_content):
     xpath_tr = "//div//div[" + str(i) + "]//tr"
     xpath_tr_1st = "//div//div[" + str(i) + "]//tr[1]//td"
     xpath_tr_2nd = "//div//div[" + str(i) + "]//tr[2]//td"
+    xpath_tr_3rd = "//div//div[" + str(i) + "]//tr[3]//td"
     xpath_td = "//div//div[" + str(i) + "]//td"
     content_tbl = html_content.xpath(xpath_string)
     content_tbl = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content_tbl ]
 
-    if check_tbl(content_tbl):
+    if check_tbl(num_tbl, content_tbl):
       len_tr = len(html_content.xpath(xpath_tr))
       len_tr_1st = len(html_content.xpath(xpath_tr_1st))
       len_tr_2nd = len(html_content.xpath(xpath_tr_2nd))
       len_td = len(html_content.xpath(xpath_td))
+
+      if len_tr >=3:
+        len_tr_3rd = len(html_content.xpath(xpath_tr_3rd))
+      else:
+        len_tr_3rd = 0
 
       if len_tr<=1:
         num_cols = round(len_td/len_tr)
@@ -118,7 +127,8 @@ def extract_tbls(num_tbl, html_content):
         num_cols = round((len_td - len_tr_1st)/(len_tr-1))
 
       # table structure: number of columns in the first row, number of rows, number of columns
-      tbl_structure = 'table structure,' + str(len_tr_1st) + ',' + str(len_tr_2nd) + ','+ str(len_tr) + ',' + str(num_cols)
+      tbl_structure = 'table structure,' + str(len_tr_1st) + ',' + str(len_tr_2nd) + \
+                      ',' + str(len_tr_3rd) + ','+ str(len_tr) + ',' + str(num_cols)
       if get_tbl_type(num_tbl, num_cols, len_tr, content_tbl)=='table type: vertical':
         content_tbl = [ re.sub(r'[\n\t]+', '', item, flags=re.M)  for item in content_tbl ]
       else:
@@ -143,7 +153,6 @@ def extract_clean_content(drugs):
     if '<table ' in drug['html_content']:
       count_tbls = sum(1 for _ in re.finditer('<table ', drug['html_content']))
       content = extract_tbls(count_tbls, html_content)
-      print(drug['url_drug'])
 
       # if all the tables donot have meaningful info
       if len(content)==0:
@@ -179,7 +188,7 @@ def extract_clean_content(drugs):
     elif len(reporting_suspected_index) >0:
       drug['content_cleaned'] = drug['content_cleaned'][start_ind:reporting_suspected_index[0]]
 
-  keys_included = ['url_drug', 'content_cleaned', 'atc_code', 'updated_date']
+  keys_included = ['url_drug', 'content_cleaned', 'atc_code', 'updated_date', 'html_content']
   drugs_sub = [ {k:v for k, v in item.items() if k in keys_included} for item in drugs ]
   
   with open("./../data/side-effects-content-new.json", "w") as write_file:
@@ -296,7 +305,12 @@ def merge_json_list(drugs, groups_drug):
   """
 
   merged = [{**drug, **group} for drug, group in zip(drugs, groups_drug)]
+  for item in merged:
+    if item['struct_type'] =='tablular':
+      html_item = html.fromstring(item['html_content'])
+      item['content_freetext'] = html_item.xpath('//div/p/text()')
 
+  merged = [ {k:v for k, v in item.items() if k not in ['html_content']} for item in merged ]
   with open("./../data/side-effects-content-merged.json", "w") as write_file:
     json.dump(merged, write_file, indent=2)
 
