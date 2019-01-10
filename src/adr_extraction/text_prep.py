@@ -84,8 +84,8 @@ def get_tbl_type(num_tbl, num_cols, len_tr, content_tbl):
   count_unknown = len([i for i, x in enumerate(content_tbl) if "known" in x])
   count_feats = [count_very_common,count_common,count_uncommon,count_rare,count_very_rare,count_unknown]
 
-  if num_cols>3 and sum(count_feats) <=num_cols:
-    tbl_type = 'table type: horizontal'
+  if num_cols>3 and sum(count_feats) > num_cols+5:
+    tbl_type = 'table type: vertical'
   elif ((all(i <2 for i in count_feats) and num_tbl<5) or num_cols>4) and len_tr>2:
     tbl_type = 'table type: horizontal'
   else:
@@ -121,10 +121,10 @@ def extract_tbls(num_tbl, html_content):
       else:
         len_tr_3rd = 0
 
-      if len_tr<=1:
+      if len_tr<=2:
         num_cols = round(len_td/len_tr)
       else:
-        num_cols = round((len_td - len_tr_1st)/(len_tr-1))
+        num_cols = round((len_td - len_tr_1st - len_tr_2nd)/(len_tr-2))
 
       # table structure: number of columns in the first row, number of rows, number of columns
       tbl_structure = 'table structure,' + str(len_tr_1st) + ',' + str(len_tr_2nd) + \
@@ -171,7 +171,7 @@ def extract_clean_content(drugs):
     content_cleaned = adr_content
 
     # remove empty strings and string that 
-    drug['content_cleaned'] = [ item for item in content_cleaned if item and (re.search('[a-z]{4,}', item) or re.search(r'[\n\t]+', item)) ]
+    drug['content_cleaned'] = [ item for item in content_cleaned if item and (re.search('[a-z]{3,}', item) or re.search(r'[\n\t]+', item)) ]
 
     tabulated_index = [i for i, x in enumerate(drug['content_cleaned']) if re.match(r'^tabulated', x)]
     if len(tabulated_index)>0:
