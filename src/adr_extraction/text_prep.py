@@ -86,7 +86,7 @@ def get_tbl_type(num_tbl, num_cols, len_tr, content_tbl):
 
   if num_cols>3 and sum(count_feats) > num_cols+5:
     tbl_type = 'table type: vertical'
-  elif ((all(i <2 for i in count_feats) and num_tbl<5) or num_cols>4) and len_tr>2:
+  elif ((all(i <2 for i in count_feats) and num_tbl<=5) or num_cols>4) and len_tr>2:
     tbl_type = 'table type: horizontal'
   else:
     tbl_type = 'table type: vertical'
@@ -244,7 +244,6 @@ def drugs_group():
       if any(i>1 for i in feats_vals) or sum(drug_vals)>=5:
         drug['struct_type'] = 'structured'
       else:
-        print(drug)
         drug['struct_type'] = 'free-text'
     else:
       drug['struct_type'] = 'tablular'
