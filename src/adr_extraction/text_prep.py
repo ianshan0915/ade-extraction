@@ -131,6 +131,12 @@ def extract_tbls(num_tbl, html_content):
                       ',' + str(len_tr_3rd) + ','+ str(len_tr) + ',' + str(num_cols)
       if get_tbl_type(num_tbl, num_cols, len_tr, content_tbl)=='table type: vertical':
         content_tbl = [ re.sub(r'[\n\t]+', '', item, flags=re.M)  for item in content_tbl ]
+
+        # clean text item that combines frequency with adrs, e.g. "very common: urinary tract infection"
+        freqs = [r'^very +common', r'^common', r'^uncommon', r'^rare', r'^very +rare']
+        nested_content = [item.split(':') if (any(re.match(freq,item) for freq in freqs ) or 'known' in item) else [item] \
+                          for item in content_tbl]
+        content_tbl = [item for sublist in nested_content for item in sublist]
       else:
         content_tbl = [td.text_content() for td in html_content.xpath(xpath_td)]
       content_tbl = [tbl_structure, get_tbl_type(num_tbl, num_cols, len_tr, content_tbl)] + content_tbl
