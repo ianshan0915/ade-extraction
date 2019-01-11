@@ -15,6 +15,8 @@ import json
 import re
 from collections import Counter
 
+from helpers import flatten
+
 import numpy as np
 from fuzzywuzzy import fuzz
 
@@ -42,6 +44,16 @@ def load_data():
         tbls_content.append(content_tbl)
 
       drug['content_cleaned'] = tbls_content
+    elif drug['struct_type'] == 'structured':
+      # remove special characters in the beginning e.g. - or \u2022
+      drug['content_cleaned'] = [re.sub(r'^\u2022|^-','',item).strip() for item in drug['content_cleaned'] ]      
+      freqs = [r'^very +common', r'^common', r'^uncommon', r'^rare', r'^very +rare']
+      nested_content = [item.split(':') if (any(re.match(freq,item) for freq in freqs ) or 'known' in item) else [item] \
+                        for item in drug['content_cleaned']]
+      drug_content = flatten(nested_content)
+      drug['content_cleaned'] = [item for item in drug_content if item.strip()]
+    else:
+      pass
 
   return drugs
 
@@ -52,6 +64,7 @@ def test(drugs):
 
   for drug in drugs:
     if drug['struct_type'] == 'tablular':
+      num_tbl = len(drug['content_cleaned'])
       for tbl in drug['content_cleaned']:
         if tbl[1] == "table type: horizontal":
 
@@ -60,14 +73,57 @@ def test(drugs):
           tbl_label = get_horizontal_table_type(freq_inds, most_common_diff, num_cols, num_diff, count_disorders)
           if tbl_label == -1:
             print(drug['url_drug'])
-            extract_vertical(tbl)
+            # explore_vertical_content(tbl)
+            # extract_vertical(tbl)
             # adrs = extract_adrs_tbl(tbl, freq_inds, tbl_label, num_cols)
             # for key in adrs.keys():
             #   print(adrs[key])
         else:
           print(drug['url_drug'])
+          # explore_vertical_content(tbl)
           extract_vertical(tbl)
+    # elif drug['struct_type'] == 'structured':
+    #   print(drug['url_drug'])
+    #   freq_inds, soc_inds = get_vertical_inds(drug['content_cleaned'])
+    #   if len(soc_inds) >0:
+    #     freq_inds_sub = [i for i in freq_inds if i > soc_inds[0]]
+    #     count_1_perc = get_vertical_struct_info(freq_inds_sub)
 
+    #     if len(freq_inds_sub)>0:
+    #       gap_soc_freq = freq_inds_sub[0]-soc_inds[0]
+    #     else:
+    #       gap_soc_freq = 0
+    #     # print(freq_inds, soc_inds)
+    #     print(count_1_perc, gap_soc_freq)
+    #     if count_1_perc==0 and gap_soc_freq==1:
+    #       # adrs_tbl = extract_adrs_vertical_tbl(freq_inds_sub, soc_inds, gap_soc_freq, drug['content_cleaned'])
+    #       # print(adrs_tbl)
+    #       pass
+    #     elif count_1_perc==0 and gap_soc_freq>=4: # emc/90/ gap_soc_freq =4
+    #       cutting_adr_index = [i for i, x in enumerate(drug['content_cleaned']) if 'post-marketing' in x]
+    #       if len(cutting_adr_index) >0:
+    #         drug['content_cleaned'] = drug['content_cleaned'][cutting_adr_index[0]:]
+    #         freq_inds, soc_inds = get_vertical_inds(drug['content_cleaned'])
+    #         # print(freq_inds, soc_inds)
+    #         if len(soc_inds) >0:
+    #           freq_inds_sub = [i for i in freq_inds if i > soc_inds[0]]
+    #           count_1_perc = get_vertical_struct_info(freq_inds_sub)
+
+    #           if len(freq_inds_sub)>0:
+    #             gap_soc_freq = freq_inds_sub[0]-soc_inds[0]
+    #           else:
+    #             gap_soc_freq = 0
+    #           # print(freq_inds, soc_inds)
+    #           print(count_1_perc, gap_soc_freq)
+    #     else:
+    #       # there are the exceptions, mainly 7861, 2380, frequency terms next to each others
+    #       pass               
+    #   else:
+    #     # if frequency terms not next to each others, then do the same as count_1_perc==0 and gap_soc_freq==1
+    #     print(freq_inds, 'no soc terms')
+    else:
+      # free-text
+      pass
   return None
 
 def check_soc_term(term):
@@ -79,7 +135,7 @@ def check_soc_term(term):
 
   fuzz_ratios = [fuzz.ratio(term, soc_term) for soc_term in soc_terms['terms']]
 
-  return any(i>=96 for i in fuzz_ratios)
+  return any(i>=92 for i in fuzz_ratios)
 
 def get_horizontal_table_type(freq_inds, most_common_diff, num_cols, num_diff, count_disorders):
   """
@@ -93,7 +149,7 @@ def get_horizontal_table_type(freq_inds, most_common_diff, num_cols, num_diff, c
 
   # if soc_label equals to 0, there is no separate column for system of classself.
   # therefore, the 
-  soc_label = num_cols - len(freq_inds) 
+  soc_label = num_cols - len(freq_inds)
 
   if most_common_diff !=1:
     # mislabelled table type, the table should be vertical
@@ -210,8 +266,7 @@ def clean_cell_text(adr_text):
 
   # sometimes there are both comma and \n 
   r_extra = re.compile('\*|\n')
-  nested_adrs = [r_extra.split(adr.strip()) for adr in adrs]
-  adrs = [item for sublist in nested_adrs for item in sublist]
+  adrs = flatten([r_extra.split(adr.strip()) for adr in adrs])
 
   adrs = [re.sub(r'\(see.+\)|\(when.+\)', '',adr).strip() for adr in adrs ] # remove (see xxx) 
   # adrs that not empty and contains more than 3 letters are included
@@ -283,6 +338,7 @@ def drugs_horizontal(drugs):
   for drug in drugs:
     if drug['struct_type'] == 'tablular':
       drug_adrs = []
+      num_tbl = len(drug['content_cleaned'])
       # for each table, extract the adrs, before extraction, we first check whether the table structure is normal    
       for tbl in drug['content_cleaned']:
         # only horizontal tables
@@ -292,7 +348,11 @@ def drugs_horizontal(drugs):
         else:
           adrs = extract_vertical(tbl)
           drug_adrs += adrs
-      drug['adrs'] = drug_adrs
+    elif drug['struct_type'] == 'structured':
+      freq_inds, soc_inds = get_vertical_inds(drug['content_cleaned'])
+    else:
+      pass
+    drug['adrs'] = drug_adrs
 
   return drugs
 
@@ -308,21 +368,146 @@ def get_vertical_inds(content_tbl):
     if len(freq_inds) >0:
       inds +=freq_inds
 
-  unknown = [i for i, x in enumerate(content_tbl) if "known" in x]
+  content_tbl = [re.sub(r'\(cannot be estimated.+\)', '',item).strip() for item in content_tbl ]
+  unknown = [i for i, x in enumerate(content_tbl) if "known" in x and len(x.split())<4]
   inds += unknown
 
   soc_inds = [i for i, x in enumerate(content_tbl) if check_soc_term(x) ]
 
   return np.sort(inds), np.sort(soc_inds)
 
+def get_vertical_struct_info(freq_inds):
+  """
+  get structural information about a vertical table so we can label it
+  different types of vertical tables will be processed with different extraction methods
+  """
+
+  freq_inds_diffs = Counter(np.diff(freq_inds))
+
+  if 1 in freq_inds_diffs.keys():
+    count_1_perc = round(freq_inds_diffs[1]/len(freq_inds),2)
+  else:
+    count_1_perc = 0
+
+  return count_1_perc * 100
+
+def explore_vertical_content(tbl_content):
+  """
+  a bit exploratory analysis on content to find a good way of further cleaning it
+  """
+
+  freq_terms = ['common', 'rare', 'known']
+  for item in tbl_content:
+    if re.search(r':.+|\n', item) and any( term in item for term in freq_terms):
+      print(item)
+
+  return None
+
+def standardize_freq_term(term):
+  """
+  standardize the frequency term
+  """
+
+  freqs = [r'^very +common', r'^common', r'^uncommon', r'^rare', r'^very +rare']
+  freq_terms = ['very common', 'common', 'uncommon', 'rare', 'very rare']
+  term_match = [freq_term for freq_term, x in zip(freq_terms, freqs) if re.match(x,term) ]
+  if len(term_match)>0:
+    standard_term = term_match[0]
+  else:
+    standard_term = 'unknown'
+
+  return standard_term
+
+def extract_adrs_vertical_tbl(freq_inds_sub, soc_inds, gap_soc_freq, tbl_content):
+  """
+  extract adrs given the indexes of frequency terms and soc terms
+  """
+
+  adrs_tbl = []
+
+  if gap_soc_freq ==0:
+    pass # 816 no soc terms
+  elif gap_soc_freq ==1:
+    for freq_ind in freq_inds_sub:
+      item = {}
+      freq_term = standardize_freq_term(tbl_content[freq_ind])
+      freq_inds_left = list(set(freq_inds_sub) - set([freq_ind]))
+      adrs = []
+      for i in range(1,len(tbl_content)):
+        adr_ind = freq_ind +i
+        # print(adr_ind, len(tbl_content))
+        if adr_ind in freq_inds_left or adr_ind in soc_inds or adr_ind >=len(tbl_content):
+          break
+        else:
+          adrs +=clean_cell_text(tbl_content[adr_ind])
+      item[freq_term]=adrs
+      adrs_tbl.append(item)
+  else:
+    for freq_ind in freq_inds_sub:
+      item = {}
+      freq_term = standardize_freq_term(tbl_content[freq_ind])
+      adrs = []
+      for i in range(1,len(tbl_content)):
+        adr_ind = freq_ind -i
+        if adr_ind in soc_inds or adr_ind >=len(tbl_content):
+          break
+        else:
+          adrs +=clean_cell_text(tbl_content[adr_ind])
+      item[freq_term]=adrs
+      adrs_tbl.append(item)
+
+  # aggreate dict list by keys
+  adrs_tbl = {key: flatten([d.get(key) for d in adrs_tbl if d.get(key)]) for key in set().union(*adrs_tbl)}
+
+  return adrs_tbl
+
 def extract_vertical(tbl_content):
   """
   - extract adrs from the vertical table,
   A vertical table is table structure classified in the data processing step
   """
-  freq_inds, soc_inds = get_vertical_inds(tbl_content)
-  print("frequencies: ", freq_inds, "soc indexes: ", soc_inds)
 
+  freq_inds, soc_inds = get_vertical_inds(tbl_content)
+  if len(soc_inds) >0:
+    freq_inds_sub = [i for i in freq_inds if i > soc_inds[0]]
+    count_1_perc = get_vertical_struct_info(freq_inds_sub)
+
+    if len(freq_inds_sub)>0:
+      gap_soc_freq = freq_inds_sub[0]-soc_inds[0]
+    else:
+      gap_soc_freq = 0 # no frequency
+
+    if count_1_perc==0:
+      # adrs_tbl = extract_adrs_vertical_tbl(freq_inds_sub, soc_inds, gap_soc_freq, tbl_content)
+      # print(adrs_tbl)
+      # print("frequencies: ", freq_inds_sub, "soc indexes: ", soc_inds)
+      pass
+    elif gap_soc_freq ==1: # frequency before adrs
+      print(count_1_perc, gap_soc_freq)
+      print("frequencies: ", freq_inds_sub, "soc indexes: ", soc_inds)
+      # pass
+    else: # frequency after adrs
+      # two cases:  multiple frequencies in a line, e.g. 8052; multiple frequencies in a column, e.g. 9036
+  else:
+    # pass
+    adrs_tbl = []
+    for freq_ind in freq_inds:
+      item = {}
+      freq_term = standardize_freq_term(tbl_content[freq_ind])
+      freq_inds_left = list(set(freq_inds) - set([freq_ind]))
+      adrs = []
+      for i in range(1,len(tbl_content)):
+        adr_ind = freq_ind +i
+        # print(adr_ind, len(tbl_content))
+        if adr_ind in freq_inds_left or adr_ind >=len(tbl_content):
+          break
+        else:
+          adrs +=clean_cell_text(tbl_content[adr_ind])
+      item[freq_term]=adrs
+    adrs_tbl.append(item)
+    # aggreate dict list by keys
+    adrs_tbl = {key: flatten([d.get(key) for d in adrs_tbl if d.get(key)]) for key in set().union(*adrs_tbl)}
+    print(adrs_tbl)
   return None
 
 def extract_structured():
