@@ -124,7 +124,7 @@ def extract_tbls(num_tbl, html_content):
         last_tr = html_content.xpath(xpath_td_last_string)
         last_tr_arr = [item.strip() for item in last_tr if item.strip()]
         if len(last_tr_arr)>1 or len(last_tr_arr[0].split())>5:
-          content_tbl = html_content.xpath(xpath_string)
+          content_tbl = html_content.xpath(xpath_string_except_last)
           content_tbl = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content_tbl ]          
 
       if len_tr >=3:

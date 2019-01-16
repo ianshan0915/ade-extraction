@@ -177,11 +177,7 @@
       "oedema peripheral",
       "injury, poisoning and procedural complications",
       "common",
-      "fractures**",
-      "* cardiac failure also includes congestive heart failure, left ventricular dysfunction and ejection fraction decreased",
-      "** fractures includes osteoporosis and all fractures with the exception of pathological fractures",
-      "spontaneous reports from post-marketing experience",
-      "alanine aminotransferase increased and/or aspartate aminotransferase increased includes alt increased, ast increased, and hepatic function abnormal."
+      "fractures**"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -1761,12 +1757,7 @@
       "common",
       "asthenia, peripheral oedema",
       "uncommon",
-      "transient symptoms as in an acute-phase response (myalgia, malaise and rarely, fever), typically in association with initiation of treatment.",
-      "see section 4.4",
-      "\u2020frequency in clinical trials was similar in the drug and placebo group.",
-      "*see sections 4.2 and 4.4",
-      "\u2021this adverse reaction was identified through post-marketing surveillance. the frequency of rare was estimated based on relevant clinical trials.",
-      "identified in postmarketing experience."
+      "transient symptoms as in an acute-phase response (myalgia, malaise and rarely, fever), typically in association with initiation of treatment."
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -3703,8 +3694,7 @@
       "very common",
       "arthralgia",
       "common",
-      "myalgia",
-      "* terms represented by 'transaminases increased' included ast increased, alt increased, hepatic enzyme increased, hepatic function abnormal, and transaminases increased (see section below)."
+      "myalgia"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -5220,24 +5210,7 @@
       "blood creatinine increased**, blood urea increased**, blood potassium increased** , blood phosphate increased",
       "surgical and medical procedures",
       "uncommon",
-      "lower limb amputations (mainly of the toe and midfoot) especially in patients at high risk for heart disease**",
-      "* related to volume depletion; see section 4.4 and description of adverse reaction (ar) below.",
-      "** see section 4.4 and description of ar below.",
-      "*** see description of ar below.",
-      "safety data profiles from individual pivotal studies (including studies in moderately renally impaired patients; older patients [\u2265 55 years of age to \u2264 80 years of age]; patients with increased cv-risk) were generally consistent with the adverse reactions identified in this table.",
-      "thirst includes the terms thirst, dry mouth, and polydipsia.",
-      "rash includes the terms rash erythematous, rash generalised, rash macular, rash maculopapular, rash papular, rash pruritic, rash pustular, and rash vesicular.",
-      "based on postmarketing experience with canagliflozin.",
-      "related to bone fracture; see description of ar below.",
-      "polyuria or pollakiuria includes the terms polyuria, pollakiuria, micturition urgency, nocturia, and urine output increased.",
-      "vulvovaginal candidiasis includes the terms vulvovaginal candidiasis, vulvovaginal mycotic infection, vulvovaginitis, vaginal infection, vulvitis, and genital infection fungal.",
-      "balanitis or balanoposthitis includes the terms balanitis, balanoposthitis, balanitis candida, and genital infection fungal.",
-      "mean percent increases from baseline for canagliflozin 100 mg and 300 mg versus placebo, respectively, were total cholesterol 3.4% and 5.2% versus 0.9%; hdl-cholesterol 9.4% and 10.3% versus 4.0%; ldl-cholesterol 5.7% and 9.3% versus 1.3%; non-hdl-cholesterol 2.2% and 4.4% versus 0.7%; triglycerides 2.4% and 0.0% versus 7.6%.",
-      "mean changes from baseline in haematocrit were 2.4% and 2.5% for canagliflozin 100 mg and 300 mg, respectively, compared to 0.0% for placebo.",
-      "mean percent changes from baseline in creatinine were 2.8% and 4.0% for canagliflozin 100 mg and 300 mg, respectively, compared to 1.5% for placebo.",
-      "mean percent changes from baseline in blood urea nitrogen were 17.1% and 18.0% for canagliflozin 100 mg and 300 mg, respectively, compared to 2.7% for placebo.",
-      "mean percent changes from baseline in blood potassium were 0.5% and 1.0% for canagliflozin 100 mg and 300 mg, respectively, compared to 0.6% for placebo.",
-      "mean percent changes from baseline in serum phosphate were 3.6% and 5.1% for canagliflozin 100 mg and 300 mg, compared to 1.5% for placebo."
+      "lower limb amputations (mainly of the toe and midfoot) especially in patients at high risk for heart disease**"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -9854,12 +9827,7 @@
       "blood urea nitrogen increased, creatine phosphokinase increased, hyperkalaemia, uric acid increased",
       "uncommon",
       "blood sodium decreased",
-      "rare",
-      "*frequency category: defined for each adverse experience term by the incidence reported in the clinical trials data base: very common (\u22651/10), common (\u22651/100 to <1/10), uncommon (\u22651/1000 to <1/100), rare (\u22651/10,000 to <1/1000), very rare (<1/10,000).",
-      "this adverse reaction was identified through post-marketing surveillance.  its reported frequency has been estimated based upon the highest frequency observed across clinical trial data pooled by indication and approved dose.",
-      "the frequency category of \u0093rare\u0094 was defined per the summary of product characteristics (smpc) guidance (rev. 2, sept 2009) on the basis of an estimated upper bound of the 95% confidence interval for 0 events given the number of subjects treated with arcoxia in the analysis of the phase iii data pooled by dose and indication (n=15,470).",
-      "hypersensitivity includes the terms \"allergy\", \"drug allergy\", \"drug hypersensitivity\", \"hypersensitivity\", \"hypersensitivity nos\", \"hypersensitivity reaction\" and \"nonspecific allergy\".",
-      "based on analyses of long-term placebo and active controlled clinical trials, selective cox-2 inhibitors have been associated with an increased risk of serious thrombotic arterial events, including myocardial infarction and stroke. the absolute risk increase for such events is unlikely to exceed 1% per year based on existing data (uncommon)."
+      "rare"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -12865,17 +12833,7 @@
       "interstitial nephritis",
       "not known",
       "crystalluria",
-      "not known",
-      "see section 4.4",
-      "see section 4.4",
-      "nausea is more often associated with higher oral doses. if gastrointestinal reactions are evident, they may be reduced by taking amoxicillin/clavulanic acid at the start of a meal.",
-      "including pseudomembranous colitis and haemorrhagic colitis (see section 4.4)",
-      "a moderate rise in ast and/or alt has been noted in patients treated with beta-lactam class antibiotics, but the significance of these findings is unknown.",
-      "these events have been noted with other penicillins and cephalosporins (see section 4.4).",
-      "if any hypersensitivity dermatitis reaction occurs, treatment should be discontinued (see section 4.4).",
-      "see section 4.9.",
-      "see section 4.4",
-      "see section 4.3 and 4.4"
+      "not known"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -23580,8 +23538,7 @@
       "hepatic enzymes increased",
       "serum creatinine increased*",
       "common",
-      "uncommon",
-      "*additional adverse reactions reported with fumaderm, a related medicinal product containing dimethyl fumarate along with other fumaric acid esters."
+      "uncommon"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -24403,8 +24360,7 @@
       "very common",
       "lipase increased (including hyperlipasaemia)",
       "common",
-      "blood creatinine increased, amylase increased, blood creatine phosphokinase increased",
-      "** adverse reaction identified post marketing."
+      "blood creatinine increased, amylase increased, blood creatine phosphokinase increased"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -24680,8 +24636,7 @@
       "common",
       "liver function test abnormal",
       "rare",
-      "semen analysis abnormal, c-reactive protein increased, blood calcium decreased",
-      "* frequencies are estimated from a post-marketing, observational cohort study"
+      "semen analysis abnormal, c-reactive protein increased, blood calcium decreased"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -26665,10 +26620,7 @@
       "abnormal liver function tests",
       "very common",
       "blood creatinine increased, weight decreased, electrocardiogram qt prolonged",
-      "common",
-      "hepatotoxicity: hepatocellular injury, drug-induced liver injury, hepatotoxicity, hepatic failure (single non-fatal case), autoimmune hepatitis (single case).",
-      "rash: rash, rash maculopapular.",
-      "abnormal liver function tests: alt increased, ast increased, blood bilirubin increased."
+      "common"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -27317,8 +27269,7 @@
       "uncommon",
       "investigations",
       "bacteria in sputum",
-      "very common",
-      "* adverse reaction and frequency reported only in clinical studies with ivacaftor in combination with tezacaftor/ivacaftor."
+      "very common"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -27790,8 +27741,7 @@
       "very rare",
       "skin and subcutaneous tissue disorders",
       "skin reactions such as erythema, urticaria",
-      "very rare",
-      "* refer to summary of product characteristics for metformin for additional information"
+      "very rare"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -29679,8 +29629,7 @@
       "common",
       "blood creatinine increased",
       "uncommon",
-      "blood creatinine increased",
-      "only the highest frequency observed in the trials is reported (based on studies murano, m13-982, m14-032, and m12-175)."
+      "blood creatinine increased"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -29832,8 +29781,6 @@
       "skin and subcutaneous tissue disorders",
       "very rare",
       "skin reactions such as erythema, pruritus and urticaria",
-      "*a decrease in vitamin b12 absorption with decrease in serum levels has been very rarely observed in patients treated long-term with metformin. consideration of such aetiology is recommended if a patient presents with megaloblastic anaemia.",
-      "**isolated cases of liver function test abnormalities or hepatitis resolving upon metformin discontinuation have been reported.",
       "table structure,1,2,1,8,2",
       "table type: vertical",
       "gastrointestinal disorders",
@@ -32184,9 +32131,7 @@
       "rash",
       "general disorders and administration site conditions",
       "common",
-      "fatigue",
-      "br=background regimen",
-      "n=number of subjects"
+      "fatigue"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -35515,8 +35460,7 @@
       "uncommon",
       "pyrexia, asthenia, chest pain, malaise",
       "rare",
-      "gait disturbance",
-      "these adverse reactions were identified through post-marketing surveillance; however, the frequencies were estimated from a statistical calculation based on the total number of patients exposed to atazanavir (with and without ritonavir) in randomised controlled and other available clinical trials (n = 2321)."
+      "gait disturbance"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -37891,16 +37835,7 @@
       "very common",
       "vascular disorders",
       "hypertension",
-      "very common",
-      "frequency is based on adverse event data.",
-      "- a subject with multiple occurrence of an adverse drug reaction (adr) is counted only once in that adr category.",
-      "- adrs reported are on treatment or up to 28 days post treatment end date.",
-      "frequency is based on laboratory values.",
-      "- a subject with multiple occurrences of an adr is counted only once in that adr category.",
-      "- adrs reported are on treatment or up to 28 days post treatment end date.",
-      "common terminology criteria for adverse events (ctcae) version 3.0; grade 1 = mild, grade 2 = moderate, grade 3 = severe, grade 4 = life-threatening",
-      "these adrs are discussed in the text.",
-      "frequency is based on all patients exposed to ruxolitinib in clinical studies (n=4755)"
+      "very common"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -39191,9 +39126,7 @@
       "fatigue",
       "investigations",
       "common",
-      "creatine phosphokinase (cpk) elevations",
-      "* frequencies are assigned based on the maximum frequencies observed in the pooled sword studies or studies with the individual components",
-      "** this adverse reaction was identified through post-marketing surveillance for dolutegravir in combination with other arvs. the frequency category of rare was estimated based on post-marketing reports."
+      "creatine phosphokinase (cpk) elevations"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -40690,17 +40623,7 @@
       "interstitial nephritis",
       "not known",
       "crystalluria",
-      "not known",
-      "see section 4.4",
-      "see section 4.4.",
-      "nausea is more often associated with higher oral doses. if gastrointestinal reactions are evident, they may be reduced by taking amoxicillin/clavulanic acid at the start of a meal.",
-      "including pseudomembranous colitis and haemorrhagic colitis (see section 4.4)",
-      "a moderate rise in ast and/or alt has been noted in patients treated with beta-lactam class antibiotics, but the significance of these findings is unknown.",
-      "these events have been noted with other penicillins and cephalosporins (see section 4.4).",
-      "if any hypersensitivity dermatitis reaction occurs, treatment should be discontinued (see section 4.4).",
-      "see section 4.9",
-      "see section 4.4",
-      "see sections 4.3 and 4.4"
+      "not known"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -42121,16 +42044,7 @@
       "asthenia, chest pain, malaise, chills, pain, thirst",
       "investigations",
       "uncommon",
-      "alanine aminotransferase increased, lipase increased, aspartate aminotransferase increased, amylase increased, haemoglobin decreased, blood creatine phosphokinase increased",
-      "*this adverse reaction was not identified from the phase 3 clinical studies for doravirine, but from the summary of product characteristics of 3tc and/or tdf. the highest frequency category reported in the 3tc or tdf summary of product characteristics is used.",
-      "this adverse reaction may occur as a consequence of proximal renal tubulopathy. it is not considered to be causally associated with tenofovir disoproxil in the absence of this condition.",
-      "depression includes: depression, depressed mood, major depression, and persistent depressive disorder",
-      "anxiety includes: anxiety and generalized anxiety disorder",
-      "abdominal pain includes: abdominal pain, and abdominal pain upper",
-      "abdominal discomfort includes: abdominal discomfort, and epigastric discomfort",
-      "faeces soft includes: faeces soft and abnormal faeces.",
-      "gastrointestinal motility disorder includes: gastrointestinal motility disorder, and frequent bowel movements",
-      "rash includes: rash, rash macular, rash erythematous, rash generalized, rash maculo-papular, rash papular, and urticaria"
+      "alanine aminotransferase increased, lipase increased, aspartate aminotransferase increased, amylase increased, haemoglobin decreased, blood creatine phosphokinase increased"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -42208,11 +42122,7 @@
       "pyrexia",
       "common",
       "asthenia/fatigue, malaise, oedema,",
-      "uncommon",
-      "*frequency category: defined for each adverse experience term by the incidence reported in the clinical trials data base: very common (\u22651/10), common (\u22651/100 to </10), uncommon (\u22651/1000 to </100), rare (\u22651/10,000 to </1000), very rare (</10,000).",
-      "this adverse experience, reported as very common in the patients who received montelukast, was also reported as very common in the patients who received placebo in clinical trials.",
-      "this adverse experience, reported as common in the patients who received montelukast, was also reported as common in the patients who received placebo in clinical trials.",
-      "frequency category: rare"
+      "uncommon"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -46106,17 +46016,7 @@
       "interstitial nephritis",
       "not known",
       "crystalluria",
-      "not known",
-      "see section 4.4",
-      "see section 4.4",
-      "nausea is more often associated with higher oral doses.  if gastrointestinal reactions are evident, they may be reduced by taking amoxicillin/clavulanic acid with a meal.",
-      "including pseudomembranous colitis and haemorrhagic colitis (see section 4.4)",
-      "a moderate rise in ast and/or alt has been noted in patients treated with beta-lactam class antibiotics, but the significance of these findings is unknown.",
-      "these events have been noted with other penicillins and cephalosporins (see section 4.4).",
-      "if any hypersensitivity dermatitis reaction occurs, treatment should be discontinued (see section 4.4).",
-      "see section 4.9",
-      "see section 4.4",
-      "see sections 4.3 and 4.4"
+      "not known"
     ],
     "struct_type": "tablular",
     "content_freetext": [
@@ -49306,8 +49206,6 @@
       "alanine aminotransferase increased",
       "blood alkaline phosphatase increased",
       "blood creatine phosphokinase increased",
-      "may present with symptoms such as fever, rash, increased liver transaminases, and visual disturbances",
-      "events include but are not limited to: epistaxis, haematochezia, gingival bleeding, haematuria, and rectal, haemorrhoidal, gastric, vaginal, conjunctival, intracranial and post procedural haemorrhage.",
       "table structure,3,3,2,85,2",
       "table type: vertical",
       "system organ class",
@@ -49442,16 +49340,7 @@
       "common",
       "blood alkaline phosphatase increased",
       "gamma-glutamyltransferase increased",
-      "blood creatine phosphokinase increased",
-      "the safety profile from mek116513 is generally similar to that of mek115306 with the following exceptions: 1) the following adverse reactions have a higher frequency category as compared to mek115306: muscle spasm (very common); renal failure and lymphoedema (common); acute renal failure (uncommon); 2) the following adverse reactions have occurred in mek116513 but not in mek115306: cardiac failure, left ventricular dysfunction, interstitial lung disease (uncommon). 3) the following adverse reaction has occurred in mek116513 and brf115532 but not in mek115306 and brf113928: rhabdomyolysis (uncommon)",
-      "cutaneous squamous cell carcinoma (cu scc): scc, scc of the skin, scc in situ (bowen's disease) and keratoacanthoma",
-      "papilloma, skin papilloma",
-      "malignant melanoma, metastatic malignant melanoma, and superficial spreading melanoma stage iii",
-      "includes drug hypersensitivity",
-      "bleeding from various sites, including intracranial bleeding and fatal bleeding",
-      "abdominal pain upper and abdominal pain lower",
-      "erythema, generalised erythema",
-      "muscle spasms, musculoskeletal stiffness"
+      "blood creatine phosphokinase increased"
     ],
     "struct_type": "tablular",
     "content_freetext": [
