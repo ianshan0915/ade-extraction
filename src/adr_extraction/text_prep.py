@@ -1,6 +1,7 @@
 import json
 import re
 from lxml import html
+from helpers import flatten, check_soc_term
 
 
 def extract_atc_code(content):
@@ -66,7 +67,7 @@ def check_tbl(num_tbl, content_tbl):
   count_digits = len([i for i, x in enumerate(content_tbl) if re.findall(r'^[0-9]+$', x.strip())])
   if num_tbl >8:
     return True
-  elif all(i <=1 for i in [count_common, count_rare, count_unknown]) or count_disorders==0 or count_digits>3:
+  elif all(i <=0 for i in [count_common, count_rare, count_unknown]) or count_disorders==0 or count_digits>3:
     return False
   else:
     return True
@@ -102,10 +103,13 @@ def extract_tbls(num_tbl, html_content):
   # get content of each table
   for i in range(1, num_tbl+1):
     xpath_string = "//div//div[" + str(i) + "]//text()"
+    xpath_string_except_last = "//div//div[" + str(i) + "]//tr[position()<last()]//text()"
     xpath_tr = "//div//div[" + str(i) + "]//tr"
     xpath_tr_1st = "//div//div[" + str(i) + "]//tr[1]//td"
     xpath_tr_2nd = "//div//div[" + str(i) + "]//tr[2]//td"
     xpath_tr_3rd = "//div//div[" + str(i) + "]//tr[3]//td"
+    xpath_td_last = "//div//div[" + str(i) + "]//tr[last()]//td"
+    xpath_td_last_string = "//div//div[" + str(i) + "]//tr[last()]//td//text()"
     xpath_td = "//div//div[" + str(i) + "]//td"
     content_tbl = html_content.xpath(xpath_string)
     content_tbl = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content_tbl ]
@@ -115,6 +119,13 @@ def extract_tbls(num_tbl, html_content):
       len_tr_1st = len(html_content.xpath(xpath_tr_1st))
       len_tr_2nd = len(html_content.xpath(xpath_tr_2nd))
       len_td = len(html_content.xpath(xpath_td))
+      len_last_tr = len(html_content.xpath(xpath_td_last))
+      if(len_last_tr)==1 and max(len_tr_1st, len_tr_2nd)!=1:
+        last_tr = html_content.xpath(xpath_td_last_string)
+        last_tr_arr = [item.strip() for item in last_tr if item.strip()]
+        if len(last_tr_arr)>1 or len(last_tr_arr[0].split())>5:
+          content_tbl = html_content.xpath(xpath_string)
+          content_tbl = [ item.lower().strip() if re.search('[a-zA-Z]{3,}', item) else item.lower() for item in content_tbl ]          
 
       if len_tr >=3:
         len_tr_3rd = len(html_content.xpath(xpath_tr_3rd))
@@ -157,6 +168,7 @@ def extract_clean_content(drugs):
   for drug in drugs:
     html_content = html.fromstring(drug['html_content'])
     if '<table ' in drug['html_content']:
+      print(drug['url_drug'])
       count_tbls = sum(1 for _ in re.finditer('<table ', drug['html_content']))
       content = extract_tbls(count_tbls, html_content)
 
@@ -207,10 +219,17 @@ def extract_features(feats_drugs):
   Conducting some exploratory analysis to know the textual content of side effects
   """
 
-  # # load the drugs
-  # uniDrugs = json.load(open("./../data/side-atccodes.json", 'r'))
+  # load soc terms
+  soc_terms = json.load(open("./../data/soc-terms.json", 'r'))
 
   for feats_drug in feats_drugs:
+    feats_drug['content_cleaned'] = [re.sub(r'^\u2022|^-','',item).strip() for item in feats_drug['content_cleaned'] ]
+
+    freqs = ['common', 'rare', 'known']
+    nested_content = [item.split(':') for item in feats_drug['content_cleaned']]
+    drug_content = flatten(nested_content)
+    feats_drug['content_cleaned'] = [item.strip() for item in drug_content if item.strip()]
+
     feats_drug['count_table'] = len([i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^table structure',x) ])
     feats_drug['very_common'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^very common',x) ]
     feats_drug['common'] = [i for i, x in enumerate(feats_drug['content_cleaned']) if re.match(r'^common',x) ]
@@ -224,10 +243,11 @@ def extract_features(feats_drugs):
     feats_drug['count_rare'] = len(feats_drug['rare'])
     feats_drug['count_veryRare'] = len(feats_drug['very_rare'])
     feats_drug['count_unknown'] = len(feats_drug['unknown'])
+    feats_drug['count_soc'] = len([i for i, x in enumerate(feats_drug['content_cleaned']) if any(term == x for term in soc_terms['terms'])])
 
   # keys_included = ['url_drug', 'count_table', 'very_common', 'common', 'uncommon', 'rare', 'very_rare', 'unknown']
   keys_included = ['url_drug', 'count_table', 'count_veryCommon', 'count_common', 'count_unommon', 'count_rare', \
-                   'count_veryRare', 'count_unknown']
+                   'count_veryRare', 'count_unknown', 'count_soc']
   # keys_included = ['url_drug', 'content','content_cleaned','html_content']
   feats_drugs_sub = [ {k:v for k, v in item.items() if k in keys_included} for item in feats_drugs ]
 
@@ -245,10 +265,12 @@ def drugs_group():
 
   for drug in feats:
     if drug['count_table']==0:
-      drug_vals = list(drug.values())[2:len(drug.values())]
+      drug_vals = list(drug.values())[2:len(drug.values())-1]
       feats_vals = [ val for val in drug_vals[1:len(drug_vals)-1]]
       if any(i>1 for i in feats_vals) or sum(drug_vals)>=5:
-        drug['struct_type'] = 'structured'
+        drug['struct_type'] = 'structured-a'
+      elif drug['count_soc']>1:
+        drug['struct_type'] = 'structured-b'
       else:
         drug['struct_type'] = 'free-text'
     else:
@@ -296,7 +318,6 @@ def explore_structural_extracted_content():
       if any(i>1 for i in feats_vals) or sum(drug_vals)>=5:
         drug['struct_type'] = 'structured'
       else:
-        print(drug)   
         drug['struct_type'] = 'free-text'
     else:
       drug['struct_type'] = 'tablular'
